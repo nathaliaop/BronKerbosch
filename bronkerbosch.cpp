@@ -62,7 +62,9 @@ int main() {
     ios::sync_with_stdio(false);
     cin.tie(NULL);
 
+    // Lê input com númeor de relações e número de vértices
     cin >> n >> k;
+    // Muda o tamanho do vetor de listas de adjacência
     edges.resize(n + 1);
     
     // R são os possíveis vértices que podem fazer parte de um clique
