@@ -2,13 +2,23 @@
 
 using namespace std;
 
+// Número de relações e número de golfinhos
+int k, n;
+
+// Lista de adjacência de vértices
+vector<vector<int>> edges;
+
 // Vetor para armazenar todos os cliques maximais sem e comn pivoteamento
 vector<vector<int>> ans_without_pivot;
 vector<vector<int>> ans_pivot;
 
 // Função para achar a união entre dois vetores
 vector<int> unite(vector<int> &A, vector<int> &B) {
-    // Vetor para armazenar a união entre dois conjuntos
+    // Ordena os dois vetores
+    sort(A.begin(), A.end());
+    sort(B.begin(), B.end());
+    
+    // Vetor para armazenar a união entre dois conjuntos;
     vector<int> U(A.size() + B.size());
     
     // Une os dois conjuntos
@@ -21,6 +31,10 @@ vector<int> unite(vector<int> &A, vector<int> &B) {
 
 // Função para achar a intersecção entre dois vetores
 vector<int> intersect(vector<int> A, vector<int> B) {
+    // Ordena os dois vetores
+    sort(A.begin(), A.end());
+    sort(B.begin(), B.end());
+    
     // Vetor para armazenar a intersecção entre dois conjuntos
     vector<int> I(A.size() + B.size());
     
@@ -37,7 +51,7 @@ void BronKerbosch_without_pivot(vector<int> &R, vector<int> &P, vector<int> &X) 
     if (P.empty() and X.empty())
         ans_without_pivot.push_back(R);
     for (auto v: P) {
-        // BronKerbosch(unite(R, {v}, intersect(P, ), intersect()));
+        // BronKerbosch(unite(R, {v}), intersect(P, edges[v]), intersect(X, edges[v]));
     }
 }
 
@@ -48,11 +62,8 @@ int main() {
     ios::sync_with_stdio(false);
     cin.tie(NULL);
 
-    // Número de relações e número de golfinhos
-    int k, n; cin >> n >> k;
-    
-    // Lista de adjacência de vértices
-    vector<vector<int>> edges(n);
+    cin >> n >> k;
+    edges.resize(n + 1);
     
     // R são os possíveis vértices que podem fazer parte de um clique
     // P são os vértices que ligam em R
