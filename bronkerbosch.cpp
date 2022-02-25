@@ -12,26 +12,34 @@ vector<vector<int>> edges;
 vector<vector<int>> ansWithoutPivot;
 vector<vector<int>> ansPivot;
 
+// Função para calcular o coeficiente de aglomeração médio do grafo
 double clusteringCoeficient() {
-    int totalClusteringCoefficient = 0;
+    double totalClusteringCoefficient = 0;
     // Percorre todos os vértices do grafo
-    for (int v = 1; v < n; v++) {
+    for (int v = 1; v <= n; v++) {
+        double localClusteringCoefficient = 0;
         // Percorre todos os vizinhos do vértice
         for (auto neighbour : edges[v]) {
             // Percorre os vizinhos do vizinho do vértice
             for (auto otherNeighbour : edges[neighbour]) {
                 // Se o vizinho do vizinho do vértice também for vizinho do vértice, adiciona 1 à reposta
                 for (auto u : edges[v]) {
-                    if (otherNeighbour == u) totalClusteringCoefficient++;
+                    if (otherNeighbour == u) localClusteringCoefficient++;
                 }
             }
         }
+        // Calcula o coeficiente de aglomeração do vértice se ele tiver mais de um vizinho
+        if (edges[v].size() > 1)
+            totalClusteringCoefficient += (double)localClusteringCoefficient/(edges[v].size()*(edges[v].size() - 1));
     }
+    // Soma os coeficientes de cada vértice e divide pelo número de vértices
     return (double)totalClusteringCoefficient/n;
 }
 
 // Função para imprimir na tela os cliques maximais encontrados
 void printAns(vector<vector<int>> ans) {
+    // Imprime quantidade de cliques maximais
+    cout << "Quantidade de cliques maximais: " << ans.size() << "\n\n";
     for (auto clique : ans) {
         // Imprime o número de vértices do clique maximal
         cout << "Tamanho do clique: " << clique.size() << '\n';
@@ -41,7 +49,6 @@ void printAns(vector<vector<int>> ans) {
             cout << e << ' ';
         cout << "\n\n";
     }
-    cout << '\n';
 }
 
 // Função para achar a união entre dois vetores
@@ -154,6 +161,8 @@ void BronKerboschPivot(vector<int> R, vector<int> P, vector<int> X) {
 int main() {
     ios::sync_with_stdio(false);
     cin.tie(NULL);
+    
+    freopen("soc-dolphins.txt", "r", stdin);
 
     // Lê input com númeor de relações e número de vértices
     cin >> n >> k;
@@ -180,12 +189,14 @@ int main() {
     cout << "Coeficiente de aglomeração médio: " << clusteringCoeficient() << "\n\n\n";
     
     // Chama a função para encontrar os cliques maximais sem pivotamento
-    cout << "Bron Kerbosch sem pivotamento:\n\n";
+    cout << "Bron Kerbosch sem pivotamento: \n\n";
     BronKerboschWithoutPivot(R, P, X);
     printAns(ansWithoutPivot);
     
+    cout << "\n\n";
+    
     // Chama a função para encontrar os cliques maximais com pivotamento
-    cout << "Bron Kerbosch com pivotamento:\n\n";
+    cout << "Bron Kerbosch com pivotamento: \n\n";
     BronKerboschPivot(R, P, X);
     printAns(ansPivot);
 
