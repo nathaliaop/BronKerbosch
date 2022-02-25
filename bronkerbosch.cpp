@@ -16,12 +16,14 @@ vector<vector<int>> ansPivot;
 void printAns(vector<vector<int>> ans) {
     for (auto clique : ans) {
         // Imprime o número de vértices do clique maximal
-        cout << clique.size() << '\n';
+        cout << "Tamanho do clique: " << clique.size() << '\n';
+        // Imprime os vértices do clique maximal
+        cout << "Elementos do clique: ";
         for (auto e : clique)
-            // Imprime os vértices do clique maximal
             cout << e << ' ';
-        cout << '\n';
+        cout << "\n\n";
     }
+    cout << '\n';
 }
 
 // Função para achar a união entre dois vetores
@@ -54,9 +56,27 @@ vector<int> intersect(vector<int> A, vector<int> B) {
     auto it = set_intersection(A.begin(), A.end(), B.begin(), B.end(), I.begin());
     I.resize(it - I.begin());
     
-    //Retorna o vetor com a união
+    //Retorna o vetor com a intersecção
     return I;
 }
+
+// Função para achar a diferença entre dois vetores
+vector<int> difference(vector<int> A, vector<int> B) {
+    // Ordena os dois vetores
+    sort(A.begin(), A.end());
+    sort(B.begin(), B.end());
+    
+    // Vetor para armazenar a diferença entre dois conjuntos
+    vector<int> D(A.size() + B.size());
+    
+    // Une os dois conjuntos
+    auto it = set_difference(A.begin(), A.end(), B.begin(), B.end(), D.begin());
+    D.resize(it - D.begin());
+    
+    //Retorna o vetor com a diferença
+    return D;
+}
+
 
 // Algoritmo de BronKerbosch para clique maximal sem pivotamento
 void BronKerboschWithoutPivot(vector<int> R, vector<int> P, vector<int> X) {
@@ -76,8 +96,42 @@ void BronKerboschWithoutPivot(vector<int> R, vector<int> P, vector<int> X) {
     }
 }
 
+// Função para escolher o vértice com maior grau como pivô
+int choosePivot(vector<int> A) {
+    // Vetor com pares com o grau de cada vértice e o próprio vértice
+    vector<pair<int, int>> degrees;
+    // Calcula o grau de cada vértice
+    for (auto v : A) {
+        degrees.push_back({edges[v].size(), v});
+    }
+    // Ordena pelo grau de cada vértice
+    sort(degrees.begin(), degrees.end());
+    // Se A for vazio, retorna 0
+    if (degrees.empty()) return 0;
+    // Senão, retorna vértice com maior grau
+    return (degrees.back()).second;
+}
+
 // Algoritmo de BronKerbosch para clique maximal com pivotamento
-void BronKerboschPivot(vector<int> &R, vector<int> &P, vector<int> &X) {}
+void BronKerboschPivot(vector<int> R, vector<int> P, vector<int> X) {
+    // Faz uma cópia do vetor P para evitar erros ao modificar o vetor P dentro do loop P
+    vector<int> PCopy(P);
+    
+    // Adiciona clique maximal à reposta
+    if (P.empty() and X.empty())
+        ansPivot.push_back(R);
+        
+    // Escolhe um pivô
+    int pivot = choosePivot(unite(P, X));
+    
+    // Chama a função recursivamente para cada vértice de P
+    for (auto v : difference(P, edges[pivot])) {
+        BronKerboschPivot(unite(R, {v}), intersect(PCopy, edges[v]), intersect(X, edges[v]));
+        // Altera os conjuntos P e X
+        PCopy.erase(find(PCopy.begin(), PCopy.end(), v));
+        X = unite(X, {v});
+    }
+}
 
 int main() {
     ios::sync_with_stdio(false);
@@ -105,10 +159,15 @@ int main() {
         edges[v].push_back(u);
     }
     
-    // Chama a função para encontrar os cliques maximais
+    // Chama a função para encontrar os cliques maximais sem pivotamento
+    cout << "Bron Kerbosch sem pivotamento:\n\n";
     BronKerboschWithoutPivot(R, P, X);
-    
     printAns(ansWithoutPivot);
+    
+    // Chama a função para encontrar os cliques maximais com pivotamento
+    cout << "Bron Kerbosch com pivotamento:\n\n";
+    BronKerboschPivot(R, P, X);
+    printAns(ansPivot);
 
     return 0;
 }
