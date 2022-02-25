@@ -2,18 +2,30 @@
 
 using namespace std;
 
-// Número de relações e número de golfinhos
+// Número de relações e número de vértices
 int k, n;
 
 // Lista de adjacência de vértices
 vector<vector<int>> edges;
 
-// Vetor para armazenar todos os cliques maximais sem e comn pivoteamento
-vector<vector<int>> ans_without_pivot;
-vector<vector<int>> ans_pivot;
+// Vetor para armazenar todos os cliques maximais sem e com pivotamento
+vector<vector<int>> ansWithoutPivot;
+vector<vector<int>> ansPivot;
+
+// Função para imprimir na tela os cliques maximais encontrados
+void printAns(vector<vector<int>> ans) {
+    for (auto clique : ans) {
+        // Imprime o número de vértices do clique maximal
+        cout << clique.size() << '\n';
+        for (auto e : clique)
+            // Imprime os vértices do clique maximal
+            cout << e << ' ';
+        cout << '\n';
+    }
+}
 
 // Função para achar a união entre dois vetores
-vector<int> unite(vector<int> &A, vector<int> &B) {
+vector<int> unite(vector<int> A, vector<int> B) {
     // Ordena os dois vetores
     sort(A.begin(), A.end());
     sort(B.begin(), B.end());
@@ -46,17 +58,26 @@ vector<int> intersect(vector<int> A, vector<int> B) {
     return I;
 }
 
-// Algoritmo de BronKerbosch para clique maximal sem pivoteamento
-void BronKerbosch_without_pivot(vector<int> &R, vector<int> &P, vector<int> &X) {
+// Algoritmo de BronKerbosch para clique maximal sem pivotamento
+void BronKerboschWithoutPivot(vector<int> R, vector<int> P, vector<int> X) {
+    // Faz uma cópia do vetor P para evitar erros ao modificar o vetor P dentro do loop P
+    vector<int> PCopy(P);
+    
+    // Adiciona clique maximal à reposta
     if (P.empty() and X.empty())
-        ans_without_pivot.push_back(R);
-    for (auto v: P) {
-        // BronKerbosch(unite(R, {v}), intersect(P, edges[v]), intersect(X, edges[v]));
+        ansWithoutPivot.push_back(R);
+    
+    // Chama a função recursivamente para cada vértice de P
+    for (auto v : P) {
+        BronKerboschWithoutPivot(unite(R, {v}), intersect(PCopy, edges[v]), intersect(X, edges[v]));
+        // Altera os conjuntos P e X
+        PCopy.erase(find(PCopy.begin(), PCopy.end(), v));
+        X = unite(X, {v});
     }
 }
 
-// Algoritmo de BronKerbosch para clique maximal com pivoteamento
-void BronKerbosch_pivot(vector<int> &R, vector<int> &P, vector<int> &X) {}
+// Algoritmo de BronKerbosch para clique maximal com pivotamento
+void BronKerboschPivot(vector<int> &R, vector<int> &P, vector<int> &X) {}
 
 int main() {
     ios::sync_with_stdio(false);
@@ -77,11 +98,17 @@ int main() {
         P.push_back(i);
     }
     
-    // Lê o input e adiciona os vizinhos de u na lista de ajacência deste
+    // Lê o input do grafo não direcionado e adiciona os vizinhos de u na lista de ajacência de cada vértice
     for (int i = 0; i < k; i++) {
         int u, v; cin >> u >> v;
         edges[u].push_back(v);
+        edges[v].push_back(u);
     }
+    
+    // Chama a função para encontrar os cliques maximais
+    BronKerboschWithoutPivot(R, P, X);
+    
+    printAns(ansWithoutPivot);
 
     return 0;
 }
