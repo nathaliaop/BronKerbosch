@@ -12,6 +12,24 @@ vector<vector<int>> edges;
 vector<vector<int>> ansWithoutPivot;
 vector<vector<int>> ansPivot;
 
+double clusteringCoeficient() {
+    int totalClusteringCoefficient = 0;
+    // Percorre todos os vértices do grafo
+    for (int v = 1; v < n; v++) {
+        // Percorre todos os vizinhos do vértice
+        for (auto neighbour : edges[v]) {
+            // Percorre os vizinhos do vizinho do vértice
+            for (auto otherNeighbour : edges[neighbour]) {
+                // Se o vizinho do vizinho do vértice também for vizinho do vértice, adiciona 1 à reposta
+                for (auto u : edges[v]) {
+                    if (otherNeighbour == u) totalClusteringCoefficient++;
+                }
+            }
+        }
+    }
+    return (double)totalClusteringCoefficient/n;
+}
+
 // Função para imprimir na tela os cliques maximais encontrados
 void printAns(vector<vector<int>> ans) {
     for (auto clique : ans) {
@@ -148,9 +166,8 @@ int main() {
     vector<int> R, P, X;
     
     // Adiciona todos os vértices do grafo ao conjunto P
-    for (int i = 1; i <= n; i++) {
+    for (int i = 1; i <= n; i++)
         P.push_back(i);
-    }
     
     // Lê o input do grafo não direcionado e adiciona os vizinhos de u na lista de ajacência de cada vértice
     for (int i = 0; i < k; i++) {
@@ -158,6 +175,9 @@ int main() {
         edges[u].push_back(v);
         edges[v].push_back(u);
     }
+    
+    // Chama a função para calcular coeficiente de aglomeração médio do grafo
+    cout << "Coeficiente de aglomeração médio: " << clusteringCoeficient() << "\n\n\n";
     
     // Chama a função para encontrar os cliques maximais sem pivotamento
     cout << "Bron Kerbosch sem pivotamento:\n\n";
